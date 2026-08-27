@@ -65,7 +65,11 @@ const QuizPage = ({ noteId, onStepChange }) => {
       const saved = sessionStorage.getItem('neuranote_quiz_state');
       if (saved) {
         const s = JSON.parse(saved);
-        if (s.step && s.step !== 'taking') setStep(s.step);
+        // Only ever restore the 'upload' step. 'taking' and 'results' both
+        // depend on in-memory quiz/results objects that we do NOT persist, so
+        // restoring them on a reload/relogin leaves the page stuck on the
+        // "Generating next quiz…" spinner forever (results === null).
+        if (s.step === 'upload') setStep('upload');
         if (s.currentQuestion !== undefined) setCurrentQuestion(s.currentQuestion);
         if (s.completedLevels)  setCompletedLevels(s.completedLevels);
         if (s.config)           setConfig(s.config);
@@ -440,21 +444,35 @@ const QuizPage = ({ noteId, onStepChange }) => {
     const cd = results.current_difficulty;
     if (cd && !completedLevels.includes(cd)) setCompletedLevels(prev => [...prev, cd]);
     const { next_difficulty, source_content: sc } = results;
-    // Show loading overlay on the results page BEFORE clearing state
+    const prevResults = results;   // snapshot so we can roll back on failure
+    // Show loading overlay on the results screen BEFORE clearing state
     setIsGenerating(true);
     // Small delay so React flushes the isGenerating=true render (shows overlay)
     await new Promise(r => setTimeout(r, 0));
     setAnswers({}); setCurrentQuestion(0); setResults(null); setShowReview(false);
-    await handleGenerateQuiz(sc, next_difficulty);
+    try {
+      await handleGenerateQuiz(sc, next_difficulty);
+    } catch {
+      // Generation failed — bring the results screen back so the user isn't
+      // stuck on the "Generating next quiz…" spinner forever.
+      setIsGenerating(false);
+      setResults(prevResults);
+    }
   };
 
   const handleRetryLevel = async (sc, difficulty) => {
-    // Show loading overlay on the results page BEFORE clearing state
+    const prevResults = results;   // snapshot so we can roll back on failure
+    // Show loading overlay on the results screen BEFORE clearing state
     setIsGenerating(true);
     await new Promise(r => setTimeout(r, 0));
     setAnswers({}); setCurrentQuestion(0); setResults(null); setShowReview(false);
     setTimeRemaining(null); setQuizStartTime(null);
-    await handleGenerateQuiz(sc, difficulty);
+    try {
+      await handleGenerateQuiz(sc, difficulty);
+    } catch {
+      setIsGenerating(false);
+      setResults(prevResults);
+    }
   };
 
   const handleDownloadPDF = async () => {

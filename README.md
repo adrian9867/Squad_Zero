@@ -42,7 +42,7 @@ NeuraNote Quiz Module is an intelligent quiz generation system that leverages AI
 - **Quiz History**: Complete record of all quiz attempts with:
   - Scores and difficulty levels
   - Time taken and date stamps
-  - Pass/fail indicators (70% threshold)
+  - Pass/fail indicators (50% threshold)
   - Pagination support (10 per page)
 - **Analytics Dashboard**:
   - Overall Performance: Average score, best score, pass rate

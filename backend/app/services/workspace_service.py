@@ -396,22 +396,28 @@ class WorkspaceService:
             return None
 
         # Binary documents (PDF/PPTX/DOCX) MUST return the real file bytes — text
-        # columns are extracted summaries, not valid PDF content. Drag-and-drop
-        # rebuilds PDFs from this endpoint, so returning text breaks re-extraction.
+        # columns are extracted summaries / annotations, NOT valid PDF structure.
+        # Drag-and-drop rebuilds PDFs from this endpoint, so returning DB text as
+        # if it were the PDF is what caused quizzes about "1 0 obj" / "Type/Catalog"
+        # / font names. Real bytes or a clean failure — never DB text for binaries.
         if is_binary_doc:
             storage_bytes = _resolve_storage_bytes()
             if storage_bytes is not None:
                 return storage_bytes
-            text_bytes = _resolve_text_columns()
-            if text_bytes is not None:
-                return text_bytes
-        else:
-            text_bytes = _resolve_text_columns()
-            if text_bytes is not None:
-                return text_bytes
-            storage_bytes = _resolve_storage_bytes()
-            if storage_bytes is not None:
-                return storage_bytes
+            # Do NOT fall through to _resolve_text_columns() for binary documents.
+            raise HTTPException(
+                status_code=404,
+                detail="The original file could not be loaded from storage. "
+                       "Please upload it directly from your computer.",
+            )
+
+        # Non-binary docs (text notes / .txt) may legitimately live in DB text columns.
+        text_bytes = _resolve_text_columns()
+        if text_bytes is not None:
+            return text_bytes
+        storage_bytes = _resolve_storage_bytes()
+        if storage_bytes is not None:
+            return storage_bytes
 
         raise HTTPException(status_code=404, detail="File bytes could not be resolved from storage or database content")
 

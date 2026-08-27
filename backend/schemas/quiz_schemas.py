@@ -60,12 +60,12 @@ class FileUploadValidator:
     """
 
     MAX_FILES: int = 20
-    MAX_FILE_SIZE: int = 25 * 1024 * 1024  # 25 MB
+    MAX_FILE_SIZE: int = 100 * 1024 * 1024  # 100 MB (matches the quiz UI)
     ALLOWED_EXTENSIONS: set = {
         "pdf", "doc", "docx", "txt", "rtf",
         "xlsx", "xls",
         "ppt", "pptx",
-        "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff",
+        "jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "md", 
         "epub",
     }
 

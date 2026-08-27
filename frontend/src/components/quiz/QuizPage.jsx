@@ -167,8 +167,7 @@ const QuizPage = ({ noteId, onStepChange }) => {
     try {
       return await workspaceApi.getFileContent(fileId);
     } catch (err) {
-      // Fall back to the old preview-URL flow in case the content route is
-      // unavailable (e.g. an older deployed backend), so uploads still work.
+      // Fall back to the old preview-URL flow in case the content route is unavailable
       const data          = await workspaceApi.getFilePreview(fileId);
       const previewObj    = data?.preview || data || {};
       const signedUrl     = previewObj?.preview_url;

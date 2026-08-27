@@ -20,13 +20,18 @@ const getAuthHeaders = () => {
 
 const MAX_FILES    = 20;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
+const SUPPORTED_EXTENSIONS = new Set([
+  'pdf', 'doc', 'docx', 'txt', 'md', 'rtf',
+  'xlsx', 'xls', 'ppt', 'pptx',
+  'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff',
+  'epub',
+]);
 
 const QuizPage = ({ noteId, onStepChange }) => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   // Guests allowed — no login redirect
-
   const [step, setStep]               = useState('upload');
   useEffect(() => { onStepChange?.(step); }, [step]); // eslint-disable-line
   const [showHistory, setShowHistory] = useState(false);
@@ -65,15 +70,20 @@ const QuizPage = ({ noteId, onStepChange }) => {
       const saved = sessionStorage.getItem('neuranote_quiz_state');
       if (saved) {
         const s = JSON.parse(saved);
-        // Only ever restore the 'upload' step. 'taking' and 'results' both
-        // depend on in-memory quiz/results objects that we do NOT persist, so
-        // restoring them on a reload/relogin leaves the page stuck on the
-        // "Generating next quiz…" spinner forever (results === null).
-        if (s.step === 'upload') setStep('upload');
+        // Guard: 'results' step is only meaningful if we actually have the results payload to show
+        const restoredStep = s.step === 'results' && !s.results ? 'upload' : s.step;
+
+        if (restoredStep && restoredStep !== 'taking') setStep(restoredStep);
         if (s.currentQuestion !== undefined) setCurrentQuestion(s.currentQuestion);
         if (s.completedLevels)  setCompletedLevels(s.completedLevels);
         if (s.config)           setConfig(s.config);
         if (s.showHistory !== undefined) setShowHistory(s.showHistory);
+        if (restoredStep === 'results') {
+          if (s.quiz)    setQuiz(s.quiz);
+          if (s.results) setResults(s.results);
+          if (s.answers) setAnswers(s.answers);
+          if (s.showReview !== undefined) setShowReview(s.showReview);
+        }
       }
     } catch (_) {}
   }, []); // eslint-disable-line
@@ -81,11 +91,15 @@ const QuizPage = ({ noteId, onStepChange }) => {
   useEffect(() => {
     try {
       sessionStorage.setItem('neuranote_quiz_state', JSON.stringify({
-        step, currentQuestion, config, completedLevels, showHistory,
+        step, currentQuestion, config, completedLevels, showHistory, showReview,
         quizId: quiz?.quiz_id || null,
+        // Only persist the (potentially large) quiz/results/answers payloads while actually on the results step
+        quiz:    step === 'results' ? quiz    : null,
+        results: step === 'results' ? results : null,
+        answers: step === 'results' ? answers : null,
       }));
     } catch (_) {}
-  }, [step, currentQuestion, config, completedLevels, showHistory, quiz?.quiz_id]);
+  }, [step, currentQuestion, config, completedLevels, showHistory, showReview, quiz, results, answers]);
 
   useEffect(() => {
     if (step !== 'taking') return;
@@ -110,18 +124,15 @@ const QuizPage = ({ noteId, onStepChange }) => {
     if (uploadedFiles.length + files.length > MAX_FILES) {
       showToast(`Cannot upload more than ${MAX_FILES} files.`, 'error'); return;
     }
-    // Files already sitting in the upload section, keyed by name + size so two
-    // different files that happen to share a name aren't treated as duplicates.
+    // Files already sitting in the upload section, keyed by name + size so two different files that happen to share a name aren't treated as duplicates.
     const existingKeys = new Set(uploadedFiles.map(f => `${f.name.toLowerCase()}::${f.file?.size ?? ''}`));
     const seenInThisBatch = new Set();
     const validFiles = files.filter(file => {
-      // Use lastIndexOf so filenames like "Copy of 1. Introduction" (dots in name,
-      // no real extension) don't get " introduction" treated as an extension.
+      // Use lastIndexOf so filenames
       const lastDot = file.name.lastIndexOf('.');
       const rawExt = lastDot !== -1 ? file.name.slice(lastDot + 1).trim().toLowerCase() : '';
-      const ext = '.' + rawExt;
-      const ok  = ['.pdf','.doc','.docx','.txt','.xlsx','.xls','.ppt','.pptx','.jpg','.jpeg','.png','.gif','.webp','.epub','.bmp','.tiff','.rtf'];
-      const isValidExt = rawExt.length > 0 && rawExt.length <= 5 && !rawExt.includes(' ') && ok.includes(ext);
+      const isValidExt = rawExt.length > 0 && rawExt.length <= 5 && !rawExt.includes(' ')
+        && SUPPORTED_EXTENSIONS.has(rawExt);
       if (!isValidExt) { showToast(`"${file.name}" has an unsupported file type.`, 'error'); return false; }
       if (file.size > MAX_FILE_SIZE) { showToast(`"${file.name}" exceeds 100MB`, 'error'); return false; }
 
@@ -151,9 +162,6 @@ const QuizPage = ({ noteId, onStepChange }) => {
   };
 
   // Fetch a file blob for the given workspace file, routed through the backend
-  // (same-origin, authenticated) rather than fetching the S3 signed URL directly
-  // from the browser — a direct S3 fetch fails with a generic "Failed to fetch"
-  // whenever the bucket's CORS policy doesn't allow the current origin.
   const fetchFileBlob = async (fileId, displayName) => {
     showToast(`Loading "${displayName}"…`, 'info', 2000);
     try {
@@ -185,10 +193,16 @@ const QuizPage = ({ noteId, onStepChange }) => {
 
   // Resolve a safe filename for a folder-tree file drop.
   const resolveDropFileName = (fileName, fileType, content, blobMime) => {
-    // If we have text content it will be saved as a .txt blob
+    const originalName = String(fileName || 'file').trim() || 'file';
+    const originalExt = originalName.includes('.')
+      ? originalName.slice(originalName.lastIndexOf('.') + 1).toLowerCase()
+      : '';
+
+    // Preserve markdown/RTF extensions when the folder API supplies inline text.
     if (content) {
-      const base = fileName.replace(/\.[^.]+$/, ''); // strip any existing extension
-      return base.endsWith('.txt') ? base : `${base}.txt`;
+      if (['txt', 'md', 'rtf'].includes(originalExt)) return originalName;
+      const base = originalName.replace(/\.[^.]+$/, '');
+      return `${base}.txt`;
     }
 
     const GENERIC = ['file', '', null, undefined];
@@ -197,15 +211,15 @@ const QuizPage = ({ noteId, onStepChange }) => {
     if (!GENERIC.includes(rawType)) {
       // Real type like 'pdf', 'docx', 'pptx' — append only if not already there
       const ext = `.${rawType}`;
-      return fileName.toLowerCase().endsWith(ext) ? fileName : `${fileName}${ext}`;
+      return originalName.toLowerCase().endsWith(ext) ? originalName : `${originalName}${ext}`;
     }
 
     // fileType is generic — try sniffing from the fileName itself
-    const dotIdx = fileName.lastIndexOf('.');
+    const dotIdx = originalName.lastIndexOf('.');
     if (dotIdx !== -1) {
-      const sniffed = fileName.slice(dotIdx + 1).toLowerCase();
+      const sniffed = originalName.slice(dotIdx + 1).toLowerCase();
       if (sniffed.length > 0 && sniffed.length <= 5 && !sniffed.includes(' ')) {
-        return fileName; // already has a real extension
+        return originalName; // already has a real extension
       }
     }
 
@@ -224,67 +238,22 @@ const QuizPage = ({ noteId, onStepChange }) => {
       'image/gif': 'gif',
       'image/webp': 'webp',
     };
-    if (blobMime && mimeToExt[blobMime]) return `${fileName}.${mimeToExt[blobMime]}`;
+    if (blobMime && mimeToExt[blobMime]) return `${originalName}.${mimeToExt[blobMime]}`;
 
     // Last resort: treat as txt so at least something goes through
-    return `${fileName}.txt`;
+    return `${originalName}.txt`;
   };
 
-  // Rebuild a real File from a workspace folder-tree drag payload.
-  //
-  // Critical fix: the sidebar's drag payload carries `content` — the *extracted
-  // text* it stores for the file. For binary documents (PDF/DOCX/PPTX/XLSX)
-  // that text is a lossy extraction (sometimes even raw bytes like "%PDF-1.7..."),
-  // NOT the original file. Sending that as a .txt ruins extraction quality
-  // (the backend can't re-parse a PDF from text). So we ALWAYS try to pull the
-  // REAL file bytes via the authenticated /content route first (returns correct
-  // bytes + correct MIME), and only fall back to the sidebar text for files that
-  // genuinely have no stored blob (e.g. a plain text note).
-  // Detect whether a sidebar text payload is actually RAW binary bytes for a
-  // PDF (header `%PDF-`, PDF object markers, control chars) rather than real
-  // extracted text. Feeding raw PDF grammar (object ids, `/Type`, fonts) to the
-  // quiz AI produces questions ABOUT the PDF structure instead of its content.
-  const looksLikeRawBinaryPdf = (value) => {
-    if (typeof value !== 'string' || !value) return false;
-    const head = value.slice(0, 4000).replace(/\r/g, '');
-    const hasHeader = /^\s*%PDF-/.test(value);
-    const hasControlChars = /[\x00-\x08\x0E-\x1F]/.test(head);
-    const pdfObjectMarkers = (head.match(/\d+\s+\d+\s+obj/g) || []).length >= 2
-      || (head.match(/\/Type\s*\/[A-Za-z]+/g) || []).length >= 2
-      || head.includes('xref') && /trailer|startxref/.test(head);
-    return hasHeader || (hasControlChars && pdfObjectMarkers);
-  };
+  // File types whose extracted text cannot be trusted as a substitute for the real bytes.
+  const BINARY_FILE_TYPES = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'epub'];
 
-  const resolveFolderFileBlob = async (fileData) => {
-    const { fileId, fileName, fileType, content } = fileData || {};
-    if (!fileId) throw new Error('Could not identify dragged file.');
-
-    let blob;
-    let usedContent = false;
-
-    try {
-      blob = await fetchFileBlob(fileId, fileName); // real bytes + correct MIME
-    } catch (err) {
-      // Real bytes unavailable (e.g. note with no storage object) — fall back to
-      // the sidebar's stored text so the file still goes through as a .txt.
-      if (content) {
-        // NEVER send raw PDF bytes as text: that is what makes the quiz
-        // generate questions about the PDF's structure/fonts instead of content.
-        if (looksLikeRawBinaryPdf(content)) {
-          throw new Error(
-            `Could not load the original file bytes for "${fileName}" (only raw PDF text was available). ` +
-            `Drag it again from the file manager, or upload it directly from your computer.`
-          );
-        }
-        blob = new Blob([content], { type: 'text/plain' });
-        usedContent = true;
-      } else {
-        throw err;
-      }
-    }
-
-    const fullName = resolveDropFileName(fileName, fileType, usedContent ? content : null, blob.type);
-    return new File([blob], fullName, { type: blob.type || 'application/octet-stream' });
+  const isBinaryFileType = (fileType, fileName) => {
+    const rawType = (fileType || '').toLowerCase();
+    if (BINARY_FILE_TYPES.includes(rawType)) return true;
+    const ext = fileName && fileName.includes('.')
+      ? fileName.slice(fileName.lastIndexOf('.') + 1).toLowerCase()
+      : '';
+    return BINARY_FILE_TYPES.includes(ext);
   };
 
   const handleDrop = async (e) => {
@@ -298,14 +267,40 @@ const QuizPage = ({ noteId, onStepChange }) => {
       let fileData;
       try { fileData = JSON.parse(raw); } catch (_) { showToast('Invalid drag data.', 'error'); return; }
 
-      const { fileId, fileName } = fileData;
+      const { fileId, fileName, fileType, fileUrl, content } = fileData;
       if (!fileId) { showToast('Could not identify dragged file.', 'error'); return; }
 
+      // CRITICAL: for binary file types (PDF, DOCX, PPTX, etc.), never use the inline `content` text
+      const shouldFetchRealBytes = isBinaryFileType(fileType, fileName);
+
+      // fullName resolved after we know blob.type — placeholder for now
+      let fullName = fileName;
+
       try {
-        const file = await resolveFolderFileBlob(fileData);
+        let blob;
+
+        if (content && !shouldFetchRealBytes) {
+          // Plain text/extracted content — no network needed
+          blob = new Blob([content], { type: 'text/plain' });
+
+        } else if (fileUrl && fileUrl.startsWith('data:')) {
+          // Inline data-URI — decode it
+          const [meta, b64] = fileUrl.split(',');
+          const mime  = meta.split(':')[1].split(';')[0];
+          const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+          blob = new Blob([bytes], { type: mime });
+
+        } else {
+          blob = await fetchFileBlob(fileId, fileName);
+        }
+
+        // For binary files, don't pass `content` to resolveDropFileName
+        const effectiveContent = shouldFetchRealBytes ? null : content;
+        fullName = resolveDropFileName(fileName, fileType, effectiveContent, blob.type);
+        const file = new File([blob], fullName, { type: blob.type || 'application/octet-stream' });
         handleFiles([file]);
       } catch (err) {
-        showToast(`Failed to load "${fileName}": ${err.message}`, 'error');
+        showToast(`Failed to load "${fullName}": ${err.message}`, 'error');
       }
       return;
     }
@@ -317,11 +312,32 @@ const QuizPage = ({ noteId, onStepChange }) => {
   };
 
   const handleFolderFileDrop = async (fileData) => {
-    const fileName = fileData?.fileName;
-    if (!fileData?.fileId) { showToast('Could not identify dragged file.', 'error'); return; }
+    const { fileId, fileName, fileType, fileUrl, content } = fileData || {};
+    if (!fileId) { showToast('Could not identify dragged file.', 'error'); return; }
+
+    // CRITICAL: for binary file types (PDF, DOCX, PPTX, etc.), never use the inline `content` text
+    const shouldFetchRealBytes = isBinaryFileType(fileType, fileName);
 
     try {
-      const file = await resolveFolderFileBlob(fileData);
+      let blob;
+
+      if (content && !shouldFetchRealBytes) {
+        blob = new Blob([content], { type: 'text/plain' });
+
+      } else if (fileUrl && fileUrl.startsWith('data:')) {
+        const [meta, b64] = fileUrl.split(',');
+        const mime  = meta.split(':')[1].split(';')[0];
+        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        blob = new Blob([bytes], { type: mime });
+
+      } else {
+        blob = await fetchFileBlob(fileId, fileName);
+      }
+
+      // For binary files, don't pass `content` to resolveDropFileName
+      const effectiveContent = shouldFetchRealBytes ? null : content;
+      const fullName = resolveDropFileName(fileName, fileType, effectiveContent, blob.type);
+      const file = new File([blob], fullName, { type: blob.type || 'application/octet-stream' });
       handleFiles([file]);
     } catch (err) {
       showToast(`Failed to load "${fileName}": ${err.message}`, 'error');
@@ -464,35 +480,21 @@ const QuizPage = ({ noteId, onStepChange }) => {
     const cd = results.current_difficulty;
     if (cd && !completedLevels.includes(cd)) setCompletedLevels(prev => [...prev, cd]);
     const { next_difficulty, source_content: sc } = results;
-    const prevResults = results;   // snapshot so we can roll back on failure
-    // Show loading overlay on the results screen BEFORE clearing state
+    // Show loading overlay on the results page BEFORE clearing state
     setIsGenerating(true);
     // Small delay so React flushes the isGenerating=true render (shows overlay)
     await new Promise(r => setTimeout(r, 0));
     setAnswers({}); setCurrentQuestion(0); setResults(null); setShowReview(false);
-    try {
-      await handleGenerateQuiz(sc, next_difficulty);
-    } catch {
-      // Generation failed — bring the results screen back so the user isn't
-      // stuck on the "Generating next quiz…" spinner forever.
-      setIsGenerating(false);
-      setResults(prevResults);
-    }
+    await handleGenerateQuiz(sc, next_difficulty);
   };
 
   const handleRetryLevel = async (sc, difficulty) => {
-    const prevResults = results;   // snapshot so we can roll back on failure
-    // Show loading overlay on the results screen BEFORE clearing state
+    // Show loading overlay on the results page BEFORE clearing state
     setIsGenerating(true);
     await new Promise(r => setTimeout(r, 0));
     setAnswers({}); setCurrentQuestion(0); setResults(null); setShowReview(false);
     setTimeRemaining(null); setQuizStartTime(null);
-    try {
-      await handleGenerateQuiz(sc, difficulty);
-    } catch {
-      setIsGenerating(false);
-      setResults(prevResults);
-    }
+    await handleGenerateQuiz(sc, difficulty);
   };
 
   const handleDownloadPDF = async () => {

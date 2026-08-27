@@ -22,6 +22,10 @@
   --color-bg-muted:       #f9fafb;
   --color-bg-subtle:      #f3f4f6;
 
+  /* Warning / pending tint */
+  --color-warning-bg:     #fffbeb;
+  --color-warning-border: #fde68a;
+
   /* Shadows */
   --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
   --shadow-md:  0 4px 12px rgba(0,0,0,0.1);
@@ -33,6 +37,106 @@
   --radius-xl:  20px;
 }
 
+/* DARK MODE — mirrors the app-wide `.dark` class set on <html> by ThemeContext.
+   Previously this only lived in styles/base.css, which nothing imports, so the
+   quiz module never picked up dark mode. Keeping it here since this is the
+   CSS file that's actually loaded by QuizPage.jsx. */
+html.dark .quiz-page {
+  --color-text:            #e8eef2;
+  --color-text-muted:      #a0aac0;
+  --color-text-subtle:     #7a8aa0;
+  --color-border:          #2d3748;
+  --color-bg:              #1a1f2e;
+  --color-bg-muted:        #1a1f2e;
+  --color-bg-subtle:       #252d3d;
+
+  --color-correct-bg:      #0d2e1f;
+  --color-correct-border:  #065f46;
+  --color-incorrect-bg:    #2d1212;
+  --color-incorrect-border:#7f1d1d;
+  --color-warning-bg:      #3f2d05;
+  --color-warning-border:  #78350f;
+}
+
+/* DARK MODE */
+
+/* Home / settings sidebar */
+html.dark .settings-sidebar            { background: #1a1f2e; border-right-color: #2d3748; }
+html.dark .sidebar-header              { background: #1a1f2e; border-bottom-color: #252d3d; }
+html.dark .sidebar-pill:hover          { background: #252d3d; border-color: #4a5568; color: #e8eef2; }
+html.dark .sidebar-pill--active        { background: color-mix(in srgb, var(--pill-color, var(--color-primary)) 18%, #1a1f2e); }
+html.dark .sidebar-option:hover        { background: #252d3d; border-color: #4a5568; }
+html.dark .sidebar-option--active      { background: #1e1a3d; border-color: var(--color-primary); }
+html.dark .sidebar-input:focus         { background: #1a1f2e; }
+html.dark .quiz-main-content           { background: #0f1419; }
+html.dark .upload-dropzone             { background: #1a1f2e; border-color: #2d3748; }
+html.dark .upload-dropzone:hover,
+html.dark .upload-dropzone.drag-active { background: #1e2a3d; border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(147,51,234,0.15); }
+html.dark .dropzone-icon               { background: #252d3d; }
+html.dark .upload-dropzone:hover .dropzone-icon { background: #2d1f5e; }
+html.dark .uploaded-files-panel        { background: #1a1f2e; border-color: #2d3748; }
+html.dark .files-count                 { background: #1e1a3d; }
+html.dark .remove-btn                  { background: #252d3d; border-color: #3d4a5c; }
+html.dark .remove-btn:hover            { background: #3d1212; }
+html.dark .file-limit-info             { background: #0d1f3d; border-color: #1e40af; color: #93c5fd; }
+html.dark .upload-tips                 { background: #1a1f2e; border-color: #2d3748; }
+html.dark .main-history-btn            { background: #1a1f2e; color: #a0aac0; border-color: #2d3748; }
+html.dark .main-history-btn:hover      { background: #1e1a3d; border-color: var(--color-primary); color: var(--color-primary); }
+html.dark .generating-overlay          { background: rgba(15,20,25,0.7); }
+html.dark .generating-modal            { background: #1a1f2e; border-color: #2d3748; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+html.dark .guest-banner                { background: #1f1a0d; border-color: #78350f; color: #fcd34d; }
+html.dark .settings-sidebar--collapsed .sidebar-header { background: #1a1f2e; }
+html.dark .sidebar-collapse-btn        { border-color: #2d3748; color: #a0aac0; }
+html.dark .sidebar-collapse-btn:hover  { background: #252d3d; color: #e8eef2; }
+
+/* Quiz taking */
+html.dark .quiz-header                 { background: #1a1f2e; }
+html.dark .quiz-timer                  { background: #252d3d; border-color: #2d3748; color: #e8eef2; }
+html.dark .cancel-quiz-btn             { background: #1a1f2e; border-color: #7f1d1d; color: #fca5a5; }
+html.dark .cancel-quiz-btn:hover       { background: #2d1212; }
+html.dark .progress-section            { background: #1a1f2e; }
+html.dark .progress-bar                { background: #252d3d; }
+html.dark .question-card               { background: #1a1f2e; }
+html.dark .question-number             { background: #1e1a3d; }
+html.dark .question-type-badge         { background: #0d1f3d; color: #93c5fd; border-color: #1e3a8a; }
+html.dark .option-btn                  { background: #1a1f2e; border-color: #2d3748; }
+html.dark .option-btn:hover            { background: #1e1a3d; border-color: #7c6fd4; }
+html.dark .option-btn.selected         { background: #1e1a3d; border-color: var(--color-primary); }
+html.dark .option-key                  { background: #252d3d; color: #a0aac0; }
+html.dark .short-answer-hint           { background: #1f1a0d; border-color: #78350f; color: #fcd34d; }
+html.dark .short-answer-input          { background: #1a1f2e; border-color: #2d3748; color: #e8eef2; }
+html.dark .short-answer-input:focus    { background: #1a1f2e; border-color: var(--color-primary); }
+html.dark .nav-btn                     { background: #1a1f2e; border-color: #2d3748; color: #a0aac0; }
+html.dark .nav-btn:hover:not(:disabled){ background: #1e1a3d; border-color: var(--color-primary); color: var(--color-primary); }
+html.dark .quiz-sidebar                { background: #1a1f2e; }
+html.dark .sidebar-stats               { border-top-color: #252d3d; }
+html.dark .stat                        { background: #252d3d; }
+html.dark .question-dot                { background: #252d3d; border-color: #2d3748; }
+
+/* Results & review */
+html.dark .score-card-new              { background: #1a1f2e; }
+html.dark .stat-card--time             { background: #1a1a3d; border-color: #4c1d95; }
+html.dark .stat-card--time .stat-card-icon { background: #2d1f5e; }
+html.dark .level-progression-card              { background: #1a1f2e; }
+html.dark .level-progression-card.can-progress { background: #1f1a0d; border-color: #78350f; }
+html.dark .level-progression-card.needs-retry  { background: #1e1a3d; border-color: #4c1d95; }
+html.dark .level-connector             { background: #2d3748; }
+html.dark .completion-card             { background: #0d2e1f; border-color: #065f46; }
+html.dark .completion-card h3          { color: #6ee7b7; }
+html.dark .completion-card p           { color: #34d399; }
+html.dark .action-btn.secondary        { background: #1a1f2e; border-color: #2d3748; color: #a0aac0; }
+html.dark .action-btn.secondary:hover  { background: #1e1a3d; border-color: var(--color-primary); color: var(--color-primary); }
+html.dark .review-section              { background: #1a1f2e; }
+html.dark .review-item                 { border-color: #2d3748; background: #1a1f2e; }
+html.dark .review-item.needs-review    { background: #1f1a0d; border-color: #78350f; }
+html.dark .type-badge                  { background: #0d1f3d; color: #93c5fd; }
+html.dark .correct-text                { color: #6ee7b7; }
+html.dark .incorrect-text              { color: #fca5a5; }
+html.dark .review-text                 { color: #fcd34d; }
+html.dark .review-badge.correct        { color: #ffffff; }
+html.dark .review-badge.incorrect      { color: #ffffff; }
+html.dark .review-badge.needs-review   { color: #ffffff; }
+
 /* QuizPage — Sidebar Layout Redesign */
 
 *, *::before, *::after {
@@ -42,7 +146,7 @@
 /* Page Shell */
 .quiz-page {
   min-height: 100vh;
-  background: #f5f5f7;
+  background: var(--color-bg-subtle);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -56,7 +160,7 @@
 .settings-sidebar {
   width: 280px;
   min-width: 280px;
-  background: #ffffff;
+  background: var(--color-bg);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
@@ -84,7 +188,7 @@
   border-bottom: 1px solid var(--color-bg-subtle);
   position: sticky;
   top: 0;
-  background: white;
+  background: var(--color-bg);
   z-index: 1;
 }
 
@@ -152,7 +256,7 @@
 .sidebar-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: white;
+  background: var(--color-bg);
   box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.08);
 }
 
@@ -191,9 +295,9 @@
 }
 
 .sidebar-pill:hover {
-  border-color: #d1d5db;
-  color: #374151;
-  background: white;
+  border-color: var(--color-border);
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 .sidebar-pill--active {
@@ -224,8 +328,8 @@
 }
 
 .sidebar-option:hover {
-  border-color: #d1d5db;
-  background: white;
+  border-color: var(--color-border);
+  background: var(--color-bg);
 }
 
 .sidebar-option--active {
@@ -310,12 +414,12 @@
 
 /* Drop Zone */
 .upload-dropzone {
-  border: 2px dashed #d1d5db;
+  border: 2px dashed var(--color-border);
   border-radius: 16px;
   padding: 3rem 2rem;
   cursor: pointer;
   transition: all 0.25s;
-  background: white;
+  background: var(--color-bg);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -378,7 +482,7 @@
 
 /* Uploaded files panel */
 .uploaded-files-panel {
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1rem 1.25rem;
@@ -463,7 +567,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 6px;
   cursor: pointer;
@@ -501,7 +605,7 @@
 
 /* Upload Tips */
 .upload-tips {
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
@@ -571,8 +675,8 @@
 .main-history-btn {
   flex: 1;
   padding: 0.875rem 1.25rem;
-  background: white;
-  color: #374151;
+  background: var(--color-bg);
+  color: var(--color-text);
   border: 1.5px solid var(--color-border);
   border-radius: 12px;
   font-size: 0.95rem;
@@ -627,12 +731,12 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #f5f5f7;
+  background: var(--color-bg-subtle);
 }
 
 .generating-content {
   text-align: center;
-  background: white;
+  background: var(--color-bg);
   padding: 3rem;
   border-radius: 20px;
   border: 1px solid var(--color-border);
@@ -686,7 +790,7 @@
 }
 
 .quiz-header {
-  background: white;
+  background: var(--color-bg);
   padding: 1.5rem;
   border-radius: 14px;
   border: 1px solid var(--color-border);
@@ -730,7 +834,7 @@
   background: var(--color-bg-muted);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  color: #374151;
+  color: var(--color-text);
   font-weight: 700;
   font-size: 0.9rem;
 }
@@ -744,7 +848,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.875rem;
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-incorrect-border);
   color: #dc2626;
   border-radius: 8px;
@@ -760,7 +864,7 @@
 
 /* Progress */
 .progress-section {
-  background: white;
+  background: var(--color-bg);
   padding: 1.25rem 1.5rem;
   border-radius: 14px;
   border: 1px solid var(--color-border);
@@ -800,7 +904,7 @@
 
 /* Question Card */
 .question-card {
-  background: white;
+  background: var(--color-bg);
   padding: 2rem;
   border-radius: 14px;
   border: 1px solid var(--color-border);
@@ -853,7 +957,7 @@
   align-items: center;
   gap: 0.875rem;
   padding: 0.875rem 1rem;
-  background: white;
+  background: var(--color-bg);
   border: 2px solid var(--color-border);
   border-radius: 10px;
   cursor: pointer;
@@ -909,8 +1013,8 @@
   font-size: 0.8rem;
   color: var(--color-text-muted);
   padding: 0.5rem 0.75rem;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
   border-radius: 8px;
   margin: 0;
 }
@@ -960,8 +1064,8 @@
   cursor: pointer;
   transition: all 0.15s;
   border: 1.5px solid var(--color-border);
-  background: white;
-  color: #374151;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .nav-btn:hover:not(:disabled) {
@@ -1019,7 +1123,7 @@
 
 /* Quiz Sidebar (Taking Step) */
 .quiz-sidebar {
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 1.25rem;
@@ -1113,7 +1217,7 @@
 }
 
 .score-card-new {
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 20px;
   padding: 2.5rem 2rem 2rem;
@@ -1172,7 +1276,7 @@
 
 /* Level Progression */
 .level-progression-card {
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 1.5rem 2rem;
@@ -1180,8 +1284,8 @@
 }
 
 .level-progression-card.can-progress {
-  border-color: #fde68a;
-  background: #fffbeb;
+  border-color: var(--color-warning-border);
+  background: var(--color-warning-bg);
 }
 
 .level-progression-card.needs-retry {
@@ -1298,7 +1402,7 @@
 
 /* Completion Card */
 .completion-card {
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-correct-border);
   border-radius: 16px;
   padding: 2rem;
@@ -1355,9 +1459,9 @@
 }
 
 .action-btn.secondary {
-  background: white;
+  background: var(--color-bg);
   border-color: var(--color-border);
-  color: #374151;
+  color: var(--color-text);
 }
 
 .action-btn.secondary:hover {
@@ -1368,7 +1472,7 @@
 
 /* Review Section */
 .review-section {
-  background: white;
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 1.5rem 2rem;
@@ -1390,7 +1494,7 @@
 
 .review-item.correct { border-color: var(--color-correct-border); background: var(--color-correct-bg); }
 .review-item.incorrect { border-color: var(--color-incorrect-border); background: var(--color-incorrect-bg); }
-.review-item.needs-review { border-color: #fde68a; background: #fffbeb; }
+.review-item.needs-review { border-color: var(--color-warning-border); background: var(--color-warning-bg); }
 
 .review-header {
   display: flex;
@@ -1415,7 +1519,7 @@
 
 .review-badge.correct { background: var(--color-correct-border); color: #065f46; }
 .review-badge.incorrect { background: var(--color-incorrect-border); color: #991b1b; }
-.review-badge.needs-review { background: #fde68a; color: #92400e; }
+.review-badge.needs-review { background: var(--color-warning-border); color: #92400e; }
 
 .type-badge {
   font-size: 0.72rem;
@@ -1547,7 +1651,7 @@
 
 .generating-modal {
   text-align: center;
-  background: white;
+  background: var(--color-bg);
   padding: 3rem;
   border-radius: 20px;
   border: 1px solid var(--color-border);

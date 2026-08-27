@@ -75,6 +75,7 @@ const QuizHomePage = ({
     if (['ppt', 'pptx'].includes(ext)) return '📊';
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return '🖼️';
     if (ext === 'epub') return '📚';
+    if (ext === 'md') return '📘';
     return '📎';
   };
 
@@ -232,7 +233,7 @@ const QuizHomePage = ({
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp,.epub,text/plain,image/*"
+           accept=".pdf,.doc,.docx,.txt,.md,.rtf,.xlsx,.xls,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,.epub,text/plain,image/*"
           onChange={handleFileInput}
           style={{ display: 'none' }}
         />
@@ -250,7 +251,7 @@ const QuizHomePage = ({
             ? <><h3>Drop to add from Folder</h3><p>Release to add this file to your quiz</p></>
             : <><h3>Drag &amp; Drop files here</h3><p>or click to browse · or drag files from My Folders</p></>
           }
-          <div className="dropzone-formats">PDF · DOC · PPT · XLS · TXT · EPUB · Images</div>
+          <div className="dropzone-formats">PDF · DOC · PPT · XLS · TXT · MD · EPUB · Images</div>
           <div className="dropzone-limit">Max 100MB per file · Up to {MAX_FILES} files</div>
         </div>
 

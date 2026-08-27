@@ -1,6 +1,6 @@
 .quiz-history-page {
   min-height: 100vh;
-  background: #fafafa;
+  background: var(--color-bg-subtle);
   padding: 1.5rem;
 }
 
@@ -17,9 +17,9 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
-  background: white;
-  border: 2px solid #e5e7eb;
-  color: #374151;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -28,7 +28,7 @@
 }
 
 .back-btn:hover {
-  background: #f9fafb;
+  background: var(--color-bg-muted);
   border-color: #9333ea;
   color: #9333ea;
 }
@@ -36,7 +36,7 @@
 .history-header h1 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -46,7 +46,7 @@
   margin: 0 auto 1.5rem;
   display: flex;
   gap: 0.75rem;
-  background: white;
+  background: var(--color-bg);
   padding: 0.4rem;
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -61,7 +61,7 @@
   padding: 0.65rem 1.2rem;
   background: transparent;
   border: none;
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: 7px;
@@ -70,8 +70,8 @@
 }
 
 .tab:hover {
-  background: #f9fafb;
-  color: #374151;
+  background: var(--color-bg-muted);
+  color: var(--color-text);
 }
 
 .tab.active {
@@ -89,7 +89,7 @@
 .loading-state, .error-state, .empty-state {
   text-align: center;
   padding: 3rem 1.5rem;
-  background: white;
+  background: var(--color-bg);
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -97,11 +97,17 @@
 .loading-state .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f4f6;
+  border: 3px solid var(--color-bg-subtle);
   border-top-color: #9333ea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 0.8rem;
+}
+
+.loading-state p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
 }
 
 .error-state p {
@@ -111,19 +117,19 @@
 }
 
 .empty-state h3 {
-  color: #374151;
+  color: var(--color-text);
   font-size: 1.25rem;
   margin: 0.8rem 0 0.4rem;
 }
 
 .empty-state p {
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.875rem;
 }
 
 /* History Container */
 .history-container {
-  background: white;
+  background: var(--color-bg);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -155,12 +161,12 @@
 .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 /* History List */
@@ -172,8 +178,8 @@
 
 .history-item {
   padding: 1rem;
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
+  background: var(--color-bg-muted);
+  border: 2px solid var(--color-border);
   border-radius: 10px;
   transition: all 0.2s;
 }
@@ -193,12 +199,12 @@
 .history-header h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 0.2rem;
 }
 
 .quiz-description {
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.8rem;
   margin: 0;
 }
@@ -220,7 +226,7 @@
   align-items: center;
   gap: 0.4rem;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .passed-badge {
@@ -242,7 +248,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.8rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--color-border);
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -251,7 +257,7 @@
 }
 
 .action-btn.view {
-  background: white;
+  background: var(--color-bg);
   color: #3b82f6;
   border-color: #3b82f6;
 }
@@ -262,7 +268,7 @@
 }
 
 .action-btn.delete {
-  background: white;
+  background: var(--color-bg);
   color: #ef4444;
   border-color: #ef4444;
 }
@@ -279,7 +285,7 @@
   align-items: center;
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 2px solid #e5e7eb;
+  border-top: 2px solid var(--color-border);
 }
 
 .page-btn {
@@ -287,9 +293,9 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
-  background: white;
-  border: 2px solid #e5e7eb;
-  color: #374151;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -309,7 +315,7 @@
 }
 
 .page-info {
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.75rem;
 }
 
@@ -321,7 +327,7 @@
 }
 
 .analytics-section {
-  background: white;
+  background: var(--color-bg);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -330,7 +336,7 @@
 .analytics-section h2 {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 1rem;
 }
 
@@ -345,8 +351,8 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
+  background: var(--color-bg-muted);
+  border: 2px solid var(--color-border);
   border-radius: 10px;
 }
 
@@ -362,12 +368,12 @@
 .stat-box .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
 }
 
 .stat-box .stat-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 /* Difficulty Stats */
@@ -378,7 +384,7 @@
 }
 
 .difficulty-card {
-  background: #f9fafb;
+  background: var(--color-bg-muted);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -394,7 +400,7 @@
 .difficulty-header h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -411,12 +417,12 @@
   display: flex;
   justify-content: space-between;
   padding: 0.4rem 0;
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.75rem;
 }
 
 .detail-row strong {
-  color: #111827;
+  color: var(--color-text);
 }
 
 /* Trend Chart */
@@ -426,7 +432,7 @@
   align-items: flex-end;
   height: 160px;
   padding: 0.8rem;
-  background: #f9fafb;
+  background: var(--color-bg-muted);
   border-radius: 10px;
 }
 
@@ -459,7 +465,7 @@
 .bar-date {
   margin-top: 0.4rem;
   font-size: 0.65rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 /* Best Attempts List */
@@ -474,8 +480,8 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.8rem;
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
+  background: var(--color-bg-muted);
+  border: 2px solid var(--color-border);
   border-radius: 10px;
 }
 
@@ -499,7 +505,7 @@
 .attempt-info h4 {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 0.2rem;
 }
 
@@ -507,7 +513,7 @@
   display: flex;
   gap: 0.6rem;
   font-size: 0.7rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .difficulty-badge {
@@ -536,21 +542,21 @@
   flex-direction: column;
   align-items: center;
   padding: 1rem;
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
+  background: var(--color-bg-muted);
+  border: 2px solid var(--color-border);
   border-radius: 10px;
 }
 
 .time-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin-bottom: 0.4rem;
 }
 
 .time-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
 }
 
 /* Modal */
@@ -569,7 +575,7 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--color-bg);
   border-radius: 12px;
   max-width: 700px;
   width: 100%;
@@ -583,13 +589,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.2rem 1.5rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--color-border);
 }
 
 .modal-header h2 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -599,11 +605,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
+  background: var(--color-bg-subtle);
   border: none;
   border-radius: 50%;
   font-size: 1.25rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -620,12 +626,12 @@
 .attempt-summary h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 0.4rem;
 }
 
 .attempt-summary p {
-  color: #6b7280;
+  color: var(--color-text-muted);
   font-size: 0.875rem;
   margin: 0 0 1.2rem;
 }
@@ -645,13 +651,13 @@
 
 .summary-item .label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .summary-item .value {
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
 }
 
 .questions-review {
@@ -661,7 +667,7 @@
 .questions-review h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 0.8rem;
 }
 
@@ -673,17 +679,17 @@
 }
 
 .review-item.correct {
-  background: #f0fdf4;
+  background: var(--color-correct-bg);
   border-color: #10b981;
 }
 
 .review-item.incorrect {
-  background: #fef2f2;
+  background: var(--color-incorrect-bg);
   border-color: #ef4444;
 }
 
 .review-item.needs-review {
-  background: #fffbeb;
+  background: var(--color-warning-bg);
   border-color: #f59e0b;
 }
 
@@ -697,7 +703,7 @@
 .question-number {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .review-badge {
@@ -724,7 +730,7 @@
 
 .question-text {
   font-size: 0.875rem;
-  color: #111827;
+  color: var(--color-text);
   margin: 0 0 0.8rem;
   font-weight: 500;
 }
@@ -737,7 +743,7 @@
 
 .your-answer, .correct-answer {
   padding: 0.6rem;
-  background: white;
+  background: var(--color-bg);
   border-radius: 5px;
 }
 
@@ -745,13 +751,13 @@
   display: block;
   font-size: 0.75rem;
   margin-bottom: 0.4rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .your-answer p, .correct-answer p {
   margin: 0;
   font-size: 0.875rem;
-  color: #111827;
+  color: var(--color-text);
 }
 
 /* Responsive */
@@ -802,4 +808,10 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* DARK MODE */
+html.dark .stat-card {
+  background: linear-gradient(135deg, #0d2e1f, #0f3d29);
+  border-color: #10b981;
 }

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { FileText, Download, BarChart3, Sparkles, TrendingUp, Award } from 'lucide-react';
 import { ThemeContext } from '@/context/ThemeContext';
 
@@ -16,6 +16,16 @@ const QuizResults = ({
   onRetryLevel,
 }) => {
   const { isDark } = useContext(ThemeContext);
+
+  // Safety net: `results` is only expected to be briefly null while a new level is actively being generated
+  const bailTimerRef = useRef(null);
+  useEffect(() => {
+    if (!results && !isGenerating) {
+      bailTimerRef.current = setTimeout(() => onRestart?.(), 4000);
+    }
+    return () => clearTimeout(bailTimerRef.current);
+  }, [results, isGenerating, onRestart]);
+
   if (!results) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '1rem' }}>
       <div className='spinner spinner--lg'></div>

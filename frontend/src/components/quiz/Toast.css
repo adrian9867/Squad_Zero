@@ -16,12 +16,17 @@
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  background: white;
+  background: var(--color-bg, #ffffff);
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   animation: slideIn 0.3s ease-out;
   min-width: 320px;
   max-width: 400px;
+}
+
+html.dark .toast {
+  background: #1a1f2e;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .toast-error {
@@ -59,7 +64,7 @@
   flex: 1;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: #1f2937;
+  color: var(--color-text, #1f2937);
   font-weight: 500;
 }
 
@@ -70,7 +75,7 @@
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
-  color: #6b7280;
+  color: var(--color-text-muted, #6b7280);
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -78,8 +83,12 @@
 }
 
 .toast-close:hover {
-  background: #f3f4f6;
-  color: #1f2937;
+  background: var(--color-bg-subtle, #f3f4f6);
+  color: var(--color-text, #1f2937);
+}
+
+html.dark .toast-close:hover {
+  background: #252d3d;
 }
 
 @keyframes slideIn {

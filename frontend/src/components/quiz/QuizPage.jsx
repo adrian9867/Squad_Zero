@@ -230,6 +230,40 @@ const QuizPage = ({ noteId, onStepChange }) => {
     return `${fileName}.txt`;
   };
 
+  // Rebuild a real File from a workspace folder-tree drag payload.
+  //
+  // Critical fix: the sidebar's drag payload carries `content` — the *extracted
+  // text* it stores for the file. For binary documents (PDF/DOCX/PPTX/XLSX)
+  // that text is a lossy extraction (sometimes even raw bytes like "%PDF-1.7..."),
+  // NOT the original file. Sending that as a .txt ruins extraction quality
+  // (the backend can't re-parse a PDF from text). So we ALWAYS try to pull the
+  // REAL file bytes via the authenticated /content route first (returns correct
+  // bytes + correct MIME), and only fall back to the sidebar text for files that
+  // genuinely have no stored blob (e.g. a plain text note).
+  const resolveFolderFileBlob = async (fileData) => {
+    const { fileId, fileName, fileType, content } = fileData || {};
+    if (!fileId) throw new Error('Could not identify dragged file.');
+
+    let blob;
+    let usedContent = false;
+
+    try {
+      blob = await fetchFileBlob(fileId, fileName); // real bytes + correct MIME
+    } catch (err) {
+      // Real bytes unavailable (e.g. note with no storage object) — fall back to
+      // the sidebar's stored text so the file still goes through as a .txt.
+      if (content) {
+        blob = new Blob([content], { type: 'text/plain' });
+        usedContent = true;
+      } else {
+        throw err;
+      }
+    }
+
+    const fullName = resolveDropFileName(fileName, fileType, usedContent ? content : null, blob.type);
+    return new File([blob], fullName, { type: blob.type || 'application/octet-stream' });
+  };
+
   const handleDrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -241,35 +275,14 @@ const QuizPage = ({ noteId, onStepChange }) => {
       let fileData;
       try { fileData = JSON.parse(raw); } catch (_) { showToast('Invalid drag data.', 'error'); return; }
 
-      const { fileId, fileName, fileType, fileUrl, content } = fileData;
+      const { fileId, fileName } = fileData;
       if (!fileId) { showToast('Could not identify dragged file.', 'error'); return; }
 
-      // fullName resolved after we know blob.type — placeholder for now
-      let fullName = fileName;
-
       try {
-        let blob;
-
-        if (content) {
-          // Plain text/extracted content — no network needed
-          blob = new Blob([content], { type: 'text/plain' });
-
-        } else if (fileUrl && fileUrl.startsWith('data:')) {
-          // Inline data-URI — decode it
-          const [meta, b64] = fileUrl.split(',');
-          const mime  = meta.split(':')[1].split(';')[0];
-          const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-          blob = new Blob([bytes], { type: mime });
-
-        } else {
-          blob = await fetchFileBlob(fileId, fileName);
-        }
-
-        fullName = resolveDropFileName(fileName, fileType, content, blob.type);
-        const file = new File([blob], fullName, { type: blob.type || 'application/octet-stream' });
+        const file = await resolveFolderFileBlob(fileData);
         handleFiles([file]);
       } catch (err) {
-        showToast(`Failed to load "${fullName}": ${err.message}`, 'error');
+        showToast(`Failed to load "${fileName}": ${err.message}`, 'error');
       }
       return;
     }
@@ -281,27 +294,11 @@ const QuizPage = ({ noteId, onStepChange }) => {
   };
 
   const handleFolderFileDrop = async (fileData) => {
-    const { fileId, fileName, fileType, fileUrl, content } = fileData || {};
-    if (!fileId) { showToast('Could not identify dragged file.', 'error'); return; }
+    const fileName = fileData?.fileName;
+    if (!fileData?.fileId) { showToast('Could not identify dragged file.', 'error'); return; }
 
     try {
-      let blob;
-
-      if (content) {
-        blob = new Blob([content], { type: 'text/plain' });
-
-      } else if (fileUrl && fileUrl.startsWith('data:')) {
-        const [meta, b64] = fileUrl.split(',');
-        const mime  = meta.split(':')[1].split(';')[0];
-        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-        blob = new Blob([bytes], { type: mime });
-
-      } else {
-        blob = await fetchFileBlob(fileId, fileName);
-      }
-
-      const fullName = resolveDropFileName(fileName, fileType, content, blob.type);
-      const file = new File([blob], fullName, { type: blob.type || 'application/octet-stream' });
+      const file = await resolveFolderFileBlob(fileData);
       handleFiles([file]);
     } catch (err) {
       showToast(`Failed to load "${fileName}": ${err.message}`, 'error');

@@ -1,0 +1,12 @@
+# Nixpacks build config for Render (Python backend).
+#
+# The image OCR path (pytesseract) needs the SYSTEM "tesseract-ocr" binary in
+# addition to the pip wheel. Nixpacks won't add it by default, so we declare it
+# here. Place this file in the SAME directory Render uses as "Root Directory"
+# (the backend/ folder) so Nixpacks picks it up.
+#
+# If you switch the Render service to a Docker image instead, use
+# backend/Dockerfile INSTEAD of this file (don't keep both).
+
+[phases.setup]
+aptPackages = ["tesseract-ocr"]

@@ -52,6 +52,16 @@ ebooklib>=0.18
 beautifulsoup4>=4.12.3
 striprtf
 Pillow>=10.0.0
+# /api/m3/* (notes) and /api/quizzes/* routes. Must stay in requirements.txt.
+PyPDF2>=3.0.0
+python-pptx>=0.6.23
+
+# Cheap lazy-imported extractors so uploads of xlsx / ppt / epub / rtf / images work
+openpyxl>=3.1.2
+ebooklib>=0.18
+beautifulsoup4>=4.12.3
+striprtf
+Pillow>=10.0.0
 
 # Image OCR (jpg/png/etc. and scanned PDFs). Requires the system "tesseract-ocr"
 # binary — the Python wheel alone is NOT enough in prod. On Render ship a

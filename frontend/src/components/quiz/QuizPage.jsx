@@ -240,6 +240,21 @@ const QuizPage = ({ noteId, onStepChange }) => {
   // REAL file bytes via the authenticated /content route first (returns correct
   // bytes + correct MIME), and only fall back to the sidebar text for files that
   // genuinely have no stored blob (e.g. a plain text note).
+  // Detect whether a sidebar text payload is actually RAW binary bytes for a
+  // PDF (header `%PDF-`, PDF object markers, control chars) rather than real
+  // extracted text. Feeding raw PDF grammar (object ids, `/Type`, fonts) to the
+  // quiz AI produces questions ABOUT the PDF structure instead of its content.
+  const looksLikeRawBinaryPdf = (value) => {
+    if (typeof value !== 'string' || !value) return false;
+    const head = value.slice(0, 4000).replace(/\r/g, '');
+    const hasHeader = /^\s*%PDF-/.test(value);
+    const hasControlChars = /[\x00-\x08\x0E-\x1F]/.test(head);
+    const pdfObjectMarkers = (head.match(/\d+\s+\d+\s+obj/g) || []).length >= 2
+      || (head.match(/\/Type\s*\/[A-Za-z]+/g) || []).length >= 2
+      || head.includes('xref') && /trailer|startxref/.test(head);
+    return hasHeader || (hasControlChars && pdfObjectMarkers);
+  };
+
   const resolveFolderFileBlob = async (fileData) => {
     const { fileId, fileName, fileType, content } = fileData || {};
     if (!fileId) throw new Error('Could not identify dragged file.');
@@ -253,6 +268,14 @@ const QuizPage = ({ noteId, onStepChange }) => {
       // Real bytes unavailable (e.g. note with no storage object) — fall back to
       // the sidebar's stored text so the file still goes through as a .txt.
       if (content) {
+        // NEVER send raw PDF bytes as text: that is what makes the quiz
+        // generate questions about the PDF's structure/fonts instead of content.
+        if (looksLikeRawBinaryPdf(content)) {
+          throw new Error(
+            `Could not load the original file bytes for "${fileName}" (only raw PDF text was available). ` +
+            `Drag it again from the file manager, or upload it directly from your computer.`
+          );
+        }
         blob = new Blob([content], { type: 'text/plain' });
         usedContent = true;
       } else {

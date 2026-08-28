@@ -16,7 +16,7 @@ export default function LandingPage() {
           <h1 className="mt-10 font-display text-5xl leading-tight text-slate-900 sm:text-8xl">
             Welcome to
             <br />
-            SecondBrain
+            Neura Note
           </h1>
 
           <p className="mt-6 max-w-xl text-lg text-slate-600">
